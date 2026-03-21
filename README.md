@@ -12,7 +12,17 @@ An agentic deep-research system that autonomously investigates mathematics and p
 
 ## Project Status
 
-**Pre-implementation** — architecture decisions finalized, implementation plan ready.
+**Implemented** — all 4 phases complete, 63 unit tests passing.
+
+## Architecture
+
+```
+User Question → Orchestrator → Researcher → Formalizer → Verifier → Reporter → Notebook
+                                                ↑           │
+                                                └───retry────┘
+```
+
+Agents are connected via LangGraph with conditional edges (retry on verification failure, up to N attempts).
 
 ## Key Files
 
@@ -20,9 +30,11 @@ An agentic deep-research system that autonomously investigates mathematics and p
 |---|---|
 | `project.md` | Full project proposal with architecture, tech stack, and decisions |
 | `IMPLEMENTATION_PLAN.md` | Detailed phased implementation plan (Phase 0–4) |
-| `sciama_1953.pdf` | Sciama's "On the Origin of Inertia" (1953) — test research topic source |
-| `on_sciama_1953.pdf` | Fay's commentary on Sciama 1953 |
-| `dipole_gravity.pdf` | Gallucci's electromagnetic dipole gravity analysis |
+| `src/config.py` | Settings, model routing, env key remapping |
+| `src/llm.py` | Unified LLM client with fallback chains + cost tracking |
+| `src/agents/graph.py` | LangGraph multi-agent pipeline definition |
+| `src/agents/single_loop.py` | Simple single-agent proof loop |
+| `src/__main__.py` | CLI entry point |
 
 ## Quick Start
 
@@ -31,13 +43,25 @@ An agentic deep-research system that autonomously investigates mathematics and p
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install dependencies
-uv sync
+uv sync --extra dev
 
-# Install Lean 4
-curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
+# Copy and fill in API keys
+cp .env.example .env
 
-# Run (once implemented)
+# Run single-agent proof loop
+uv run python -m src --single "Prove that 1 + 1 = 2"
+
+# Run full multi-agent pipeline
 uv run python -m src "Prove that sqrt(2) is irrational"
+
+# Run with source PDFs
+uv run python -m src --pdfs paper.pdf "Research question here"
+
+# Run unit tests
+uv run pytest tests/ -m "not integration" -v
+
+# (Optional) Install Lean 4 for formal verification
+curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh -s -- -y
 ```
 
 ## Requirements
