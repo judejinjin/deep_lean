@@ -1,0 +1,34 @@
+# Environment & secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Lean 4
+lean_project/build/
+lean_project/.lake/
+
+# Output artifacts
+output/
+
+# ChromaDB
+.chromadb/
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
