@@ -40,8 +40,8 @@ class Settings(BaseSettings):
 
     # ── Lean ────────────────────────────────────────────────────────
     lean_project_dir: str = "lean_project"
-    lean_max_retries: int = 5
-    lean_timeout: int = 120  # seconds per build
+    lean_max_retries: int = 8
+    lean_timeout: int = 180  # seconds per build
 
     # ── Paths ───────────────────────────────────────────────────────
     output_dir: str = "output"
