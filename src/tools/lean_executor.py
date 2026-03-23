@@ -35,15 +35,18 @@ class LeanExecutor:
         for f in self.generated_dir.glob("*.lean"):
             f.unlink()
 
-    async def build(self, timeout: int | None = None) -> LeanResult:
-        """Run `lake build` and return structured result."""
+    async def build(self, target: str | None = None, timeout: int | None = None) -> LeanResult:
+        """Run `lake build [target]` and return structured result."""
         timeout = timeout or settings.lean_timeout
         t0 = time.monotonic()
 
+        cmd = ["lake", "build"]
+        if target:
+            cmd.append(target)
+
         try:
             proc = await asyncio.create_subprocess_exec(
-                "lake",
-                "build",
+                *cmd,
                 cwd=str(self.project_dir),
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
@@ -91,10 +94,16 @@ class LeanExecutor:
             build_time_seconds=round(elapsed, 2),
         )
 
+    def _module_name(self, code: LeanCode) -> str:
+        """Derive Lean module name from filename, e.g. 'Foo.lean' → 'DeepLean.Generated.Foo'."""
+        stem = Path(code.filename).stem
+        return f"DeepLean.Generated.{stem}"
+
     async def verify(self, code: LeanCode, timeout: int | None = None) -> LeanResult:
         """Write file + build in one call."""
         self.write_lean_file(code)
-        return await self.build(timeout=timeout)
+        target = self._module_name(code)
+        return await self.build(target=target, timeout=timeout)
 
     async def check_available(self) -> bool:
         """Check if lake is available on the system."""

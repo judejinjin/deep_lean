@@ -37,6 +37,8 @@ class ReporterAgent(BaseAgent):
         return {
             "report_md": report,
             "report_path": str(report_path),
+            "lean_verified": state.get("lean_verified"),
+            "attempt_count": state.get("attempt_count"),
         }
 
     @staticmethod

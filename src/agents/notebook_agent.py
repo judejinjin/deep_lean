@@ -77,7 +77,11 @@ class NotebookAgent(BaseAgent):
 
         log.info("notebook_agent_done", path=str(path), cells=nb.cell_count)
 
-        return {"notebook_path": str(path)}
+        return {
+            "notebook_path": str(path),
+            "lean_verified": state.get("lean_verified"),
+            "attempt_count": state.get("attempt_count"),
+        }
 
     async def _plan_notebook(self, state: dict) -> dict:
         """Plan the notebook structure using the narrative model."""

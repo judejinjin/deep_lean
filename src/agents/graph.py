@@ -6,8 +6,9 @@ Pipeline: orchestrator → researcher → formalizer → verifier → (retry?) �
 
 from __future__ import annotations
 
+import operator
 import uuid
-from typing import Annotated, Any
+from typing import Annotated, Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
@@ -16,29 +17,28 @@ from src.utils.logging import log
 
 
 # ── State definition ────────────────────────────────────────────────
-class AgentState(dict):
+class AgentState(TypedDict, total=False):
     """Shared state flowing through the LangGraph.
 
-    Using a plain dict subclass for LangGraph compatibility.
-    Keys:
-        question: str
-        source_pdfs: list[str]
-        session_id: str
-        research_plan: str
-        research_context: str
-        papers: list[dict]
-        informal_proof: str
-        lean_code: str
-        lean_errors: str
-        lean_verified: bool
-        lean_result: dict
-        attempt_count: int
-        report_md: str
-        report_path: str
-        notebook_path: str
+    All fields use the last-writer-wins merge strategy (operator.or_
+    is not needed — LangGraph merges TypedDict keys by default).
     """
 
-    pass
+    question: str
+    source_pdfs: list[str]
+    session_id: str
+    research_plan: str
+    research_context: str
+    papers: list[dict]
+    informal_proof: str
+    lean_code: str
+    lean_errors: str
+    lean_verified: bool
+    lean_result: dict
+    attempt_count: int
+    report_md: str
+    report_path: str
+    notebook_path: str
 
 
 # ── Node functions ──────────────────────────────────────────────────
@@ -100,7 +100,7 @@ def route_after_verification(state: dict) -> str:
 # ── Graph builder ───────────────────────────────────────────────────
 def build_graph() -> Any:
     """Build and compile the LangGraph multi-agent pipeline."""
-    graph = StateGraph(dict)
+    graph = StateGraph(AgentState)
 
     # Add nodes
     graph.add_node("orchestrator", orchestrator_node)

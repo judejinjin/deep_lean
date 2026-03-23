@@ -17,6 +17,7 @@ htmlcov/
 # Lean 4
 lean_project/build/
 lean_project/.lake/
+lean_project/DeepLean/Generated/
 
 # Output artifacts
 output/
@@ -36,3 +37,4 @@ Thumbs.db
 # uv
 uv.lock
 
+/.lake
